@@ -32,23 +32,23 @@ public void tileSizeSlider_change(GSlider source, GEvent event) { //_CODE_:tileS
 } //_CODE_:tileSizeSlider:240533:
 
 public void iterationsMaxSlider_change(GSlider source, GEvent event) { //_CODE_:iterationsMaxSlider:487152:
-  nbIterationsMax = source.getValueI();
+  mapParams.nbIterationsMax = source.getValueI();
 } //_CODE_:iterationsMaxSlider:487152:
 
 public void minCorridors_change(GSlider source, GEvent event) { //_CODE_:slider1:397826:
-  nbSubIterationsMin = source.getValueI();
+  mapParams.nbSubIterationsMin = source.getValueI();
 } //_CODE_:slider1:397826:
 
 public void maxCorridors_change(GSlider source, GEvent event) { //_CODE_:slider2:285483:
-  nbSubIterationsMax = source.getValueI();
+  mapParams.nbSubIterationsMax = source.getValueI();
 } //_CODE_:slider2:285483:
 
 public void slider3_change1(GSlider source, GEvent event) { //_CODE_:slider3:902514:
-  nbMinRooms = source.getValueI();
+ mapParams.nbMinRooms = source.getValueI();
 } //_CODE_:slider3:902514:
 
 public void slider4_change1(GSlider source, GEvent event) { //_CODE_:slider4:990699:
-  nbMaxRooms = source.getValueI();
+  mapParams.nbMaxRooms = source.getValueI();
 } //_CODE_:slider4:990699:
 
 public void showGrid_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox1:596855:
@@ -60,7 +60,7 @@ public void checkbox2_clicked1(GCheckbox source, GEvent event) { //_CODE_:checkb
 } //_CODE_:checkbox2:230654:
 
 public void IterationsMinSlider_change(GSlider source, GEvent event) { //_CODE_:iterationsMinSlider:728931:
-    nbIterationsMin = source.getValueI();;
+    mapParams.nbIterationsMin = source.getValueI();;
 } //_CODE_:iterationsMinSlider:728931:
 
 public void button1_click1(GButton source, GEvent event) { //_CODE_:button1:325504:
@@ -70,6 +70,10 @@ public void button1_click1(GButton source, GEvent event) { //_CODE_:button1:3255
 public void button2_click1(GButton source, GEvent event) { //_CODE_:button2:728914:
   ExpandRooms();
 } //_CODE_:button2:728914:
+
+public void slider5_change1(GSlider source, GEvent event) { //_CODE_:slider5:924706:
+  println("slider5 - GSlider >> GEvent." + event + " @ " + millis());
+} //_CODE_:slider5:924706:
 
 
 
@@ -218,6 +222,16 @@ public void createGUI(){
   button2 = new GButton(editeur, 130, 560, 110, 60);
   button2.setText("Expand (E)");
   button2.addEventHandler(this, "button2_click1");
+  slider5 = new GSlider(editeur, 140, 500, 100, 50, 10.0);
+  slider5.setShowValue(true);
+  slider5.setShowLimits(true);
+  slider5.setLimits(0.0, 0.0, 1.0);
+  slider5.setNbrTicks(9);
+  slider5.setStickToTicks(true);
+  slider5.setShowTicks(true);
+  slider5.setNumberFormat(G4P.DECIMAL, 2);
+  slider5.setOpaque(false);
+  slider5.addEventHandler(this, "slider5_change1");
   editeur.loop();
 }
 
@@ -245,3 +259,4 @@ GSlider iterationsMinSlider;
 GLabel BrancheIterationMin; 
 GButton button1; 
 GButton button2; 
+GSlider slider5; 

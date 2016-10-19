@@ -24,7 +24,7 @@ class Room
   void addDoor(int dir, Room target)
   {
    // doors[dir] = target; 
-    nbCountDoors++;
+    mapInfos.nbCountDoors++;
   }
   
   void drawRoom()
@@ -126,10 +126,9 @@ void InitRooms()
   gridArray = new Room[tColumns][tRows];
   roomsList = new ArrayList<Room>();
   
-  
- nbCountCorridors = 0;
- nbCountCroisements = 0;
- nbCountDoors = 0;
+  stockInfos.add(mapInfos);
+  PrintReport();
+  mapInfos = new MapInfos();
 
   
   for(int i = 0; i < tRows; i++)
@@ -142,5 +141,5 @@ void InitRooms()
   startingRoom = gridArray[tColumns/2][tRows/2] = new Room(tColumns/2, tRows/2);
   roomsList.add(startingRoom);
   
-  createMaze(startingRoom, int(random(nbIterationsMin, nbIterationsMax+1)));
+  createMaze(startingRoom, int(random(mapParams.nbIterationsMin, mapParams.nbIterationsMax+1)));
 }

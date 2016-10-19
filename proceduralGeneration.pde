@@ -25,32 +25,28 @@ int tempMapHeight = 960;
 int tColumns;
 int tRows;
 
-int nbIterationsMin = 3;
-int nbIterationsMax = 3;
-int nbSubIterationsMin = 2;
-int nbSubIterationsMax = 5;
-
-int nbMinRooms = 2;
-int nbMaxRooms = 5;
-
-int nbCountCorridors = 0;
-int nbCountCroisements = 0;
-int nbCountDoors = 0;
+MapParams mapParams;
+MapInfos mapInfos;
 
 Room[][] gridArray;
 ArrayList<Room> roomsList;
+
+ArrayList<MapInfos> stockInfos;
+MapInfos meanInfos;
 
 Room startingRoom;
 
 boolean showGrid = true;
 boolean showInfos = true;
 
-float ratioBigRooms = 1.0f;
+float ratioBigRooms = 0.10f; //.0f;
 
 void setup()
 {
   size(1080,1080);
-  
+  meanInfos = new MapInfos();
+  stockInfos = new ArrayList<MapInfos>();
+  mapParams = new MapParams(2,2,1,2,1,2);
   InitRooms();
   createGUI();
 }
@@ -60,6 +56,7 @@ void draw()
   background(96);
   if(showGrid) DrawGrid();
   DrawRooms();
+  mapInfos.nbCountRooms = roomsList.size();
   if(showInfos) DrawInfos();
 }
 
@@ -74,12 +71,14 @@ void DrawInfos()
   rect(x,y,200,200);
   textSize(12);
   fill(255);
-  text("Nombre Rooms : " + roomsList.size(), x + 15, y + 15);
-  text("Nombre Couloirs : " + nbCountCorridors, x + 15, y + 30);
-  text("Nombre Croisements : " + nbCountCroisements, x + 15, y + 45);
-  text("Nombre Portes : " + nbCountDoors, x + 15, y + 60);
+  
+  text("Nombre Rooms : " + mapInfos.nbCountRooms + "("+meanInfos.nbCountRooms+")", x + 15, y + 15);
+  text("Nombre Couloirs : " + mapInfos.nbCountCorridors+ "("+meanInfos.nbCountCorridors+")", x + 15, y + 30);
+  text("Nombre Croisements : " + mapInfos.nbCountCroisements+ "("+meanInfos.nbCountCroisements+")", x + 15, y + 45);
+  text("Nombre Portes : " + mapInfos.nbCountDoors+ "("+meanInfos.nbCountDoors+")", x + 15, y + 60);
   popMatrix();
 }
+
 
 void DrawGrid()
 {
@@ -100,12 +99,12 @@ void createMaze(Room _startingRoom, int _nbIterations)
     endpoints.add(new ArrayList<Room>());
     endpoints.get(j).add(_startingRoom);
     endpoints.add(new ArrayList<Room>());
-      nbCountCroisements++;
+mapInfos.nbCountCroisements++;
     for(Room room : endpoints.get(j))
     {
       for(int i = 0; i < 4; i++)
       {
-         endpoints.get(j+1).add(createBranch(room,int(random(nbSubIterationsMin,nbSubIterationsMax+1)))); 
+         endpoints.get(j+1).add(createBranch(room,int(random(mapParams.nbSubIterationsMin,mapParams.nbSubIterationsMax+1)))); 
       }
     }
   }
@@ -125,7 +124,7 @@ Room createBranch(Room _startingRoom, int _nbIterations)
     
     Boolean canExpand = false;
     int index = 0;
-    int nbCases = int(random(nbMinRooms,nbMaxRooms+1));
+    int nbCases = int(random(mapParams.nbMinRooms,mapParams.nbMaxRooms+1));
     do
     {
       canExpand = canExtrude(_startingRoom, order.get(index), nbCases);
@@ -135,7 +134,7 @@ Room createBranch(Room _startingRoom, int _nbIterations)
     if(canExpand)
     {
      _startingRoom = extrude(_startingRoom, order.get(index), nbCases); 
-     nbCountCorridors++;
+     mapInfos.nbCountCorridors++;
     }
   }
   
@@ -224,8 +223,9 @@ void mouseClicked()
 
 void keyPressed()
 {
-  if(key == 'g')showGrid = !showGrid;
+  if(key == 'h')showGrid = !showGrid;
   if(key == 'i')showInfos = !showInfos;
-  if(key == 'c') InitRooms();
+  if(key == 'g') InitRooms();
   if(key == 'e') ExpandRooms();
+  if(key == 'p') PrintReport();
 }
