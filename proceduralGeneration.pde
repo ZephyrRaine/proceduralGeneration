@@ -10,11 +10,11 @@ final int NE = 1;
 final int SW = 2;
 final int SE = 3;  
 
-int tHeight = 16;
-int tWidth = 16;
+int tHeight = 32;
+int tWidth = 32;
 
-int tempTWidth = 16;
-int tempTHeight = 16;
+int tempTWidth = 32;
+int tempTHeight = 32;
 
 int mapWidth = 960;
 int mapHeight = 960;
@@ -38,23 +38,73 @@ Room startingRoom;
 
 boolean showGrid = true;
 boolean showInfos = true;
+boolean showOrigin = true;
+boolean showDistance = true;
 
-float ratioBigRooms = 0.10f; //.0f;
+String savePath = "preset";
+String loadPath = "";
+
+boolean wantToGenerate = false;
+
 
 void setup()
 {
+  
   size(1080,1080);
+  createGUI();
+  InitPresetsList();
   meanInfos = new MapInfos();
   stockInfos = new ArrayList<MapInfos>();
-  mapParams = new MapParams(2,2,1,2,1,2);
+  mapParams = new MapParams(2,2,1,2,1,2,0.15);
   InitRooms();
-  createGUI();
+}
+
+void distanceFromStart()
+{
+  ArrayList<Room> queue = new ArrayList<Room>();
+  ArrayList<Room> visited = new ArrayList<Room>();
+  queue.add(startingRoom);
+  visited.add(startingRoom);
+  startingRoom.distanceFromStart = 0;
+  Room current;
+  
+  while(queue.size() != 0)
+  {
+    current = queue.remove(0);
+    for(int i = 0; i < 4; i++)
+    {
+      for(int j = 0; j < 2; j++)
+      {
+        Room d = current.doors[i][j];
+        if(d != null && !visited.contains(d))
+        {
+           queue.add(d);
+           visited.add(d);
+           d.distanceFromStart = current.distanceFromStart + 1;
+           if(d.distanceFromStart > mapInfos.distanceMax) mapInfos.distanceMax = d.distanceFromStart;
+        }
+      }
+    }
+  }
+  
+  boolean isGood = true;
+  
+  for(Room r : roomsList)
+  {
+    if(r != startingRoom && r.distanceFromStart == 0)
+    {
+      isGood = false;
+    }
+  }
+    
+  if(!isGood) InitRooms();
 }
 
 void draw()
 {  
-  background(96);
+  background(64);
   if(showGrid) DrawGrid();
+  if(wantToGenerate) InitRooms();
   DrawRooms();
   mapInfos.nbCountRooms = roomsList.size();
   if(showInfos) DrawInfos();
@@ -62,20 +112,18 @@ void draw()
 
 void DrawInfos()
 {
-  int x = int(mapWidth*0.75);
+  int x = int(mapWidth*0.70);
   int y = int(mapHeight*0.05);
   pushMatrix();
   strokeWeight(2);
   stroke(196,196);
   fill(16,96);
-  rect(x,y,200,200);
+  rect(x,y,250,200);
   textSize(12);
   fill(255);
   
-  text("Nombre Rooms : " + mapInfos.nbCountRooms + "("+meanInfos.nbCountRooms+")", x + 15, y + 15);
-  text("Nombre Couloirs : " + mapInfos.nbCountCorridors+ "("+meanInfos.nbCountCorridors+")", x + 15, y + 30);
-  text("Nombre Croisements : " + mapInfos.nbCountCroisements+ "("+meanInfos.nbCountCroisements+")", x + 15, y + 45);
-  text("Nombre Portes : " + mapInfos.nbCountDoors+ "("+meanInfos.nbCountDoors+")", x + 15, y + 60);
+  text("Nombre Rooms : " + mapInfos.nbCountRooms + " ("+meanInfos.nbCountRooms/float(stockInfos.size())+")", x + 15, y + 15);
+  text("Distance Max : " + mapInfos.distanceMax+ " ("+meanInfos.distanceMax/float(stockInfos.size())+")", x + 15, y + 30);
   popMatrix();
 }
 
@@ -83,7 +131,7 @@ void DrawInfos()
 void DrawGrid()
 {
   pushMatrix();
-  stroke(128);
+  stroke(96);
   noFill();
   for(int i = 1; i <= tColumns; i++)line(i*tWidth,0,i*tWidth,tColumns*tWidth);
   for(int j = 1; j <= tRows; j++) line(0,j*tHeight,tRows*tHeight, j*tHeight);
@@ -182,30 +230,22 @@ Room extrude(Room from, int dir, int nbCases)
         source = gridArray[from.tX][from.tY-(offset-1)];
         target = gridArray[from.tX][from.tY-offset] = new Room(from.tX, from.tY-offset);
         
-        source.addDoor(NORTH, target);
-        target.addDoor(SOUTH, target); 
         break;
         case SOUTH:
         source = gridArray[from.tX][from.tY+(offset-1)];
         target = gridArray[from.tX][from.tY+offset] = new Room(from.tX, from.tY+offset);
         
-        source.addDoor(SOUTH, target);
-        target.addDoor(NORTH, target); 
         break;
         case EAST:
         source = gridArray[from.tX+(offset-1)][from.tY];
         target = gridArray[from.tX+offset][from.tY] = new Room(from.tX+offset, from.tY);
         
-        source.addDoor(EAST, target);
-        target.addDoor(WEST, target); 
         
         break;
         case WEST:
         source = gridArray[from.tX-(offset-1)][from.tY];
         target = gridArray[from.tX-offset][from.tY] = new Room(from.tX-offset, from.tY);
         
-        source.addDoor(WEST, target);
-        target.addDoor(EAST, target); 
         break;
       }
       roomsList.add(target);
@@ -218,14 +258,18 @@ Room extrude(Room from, int dir, int nbCases)
 void mouseClicked()
 {
   Room r = gridArray[mouseX/tWidth][mouseY/tHeight];
-  if(r != null && r.tSizeX == 1 && r.tSizeY == 1) ExpandRoom(r);
+    if(r != null) 
+    {
+      println(r.distanceFromStart);
+    }
 }
 
 void keyPressed()
 {
   if(key == 'h')showGrid = !showGrid;
   if(key == 'i')showInfos = !showInfos;
+  if(key == 'o')showOrigin = !showOrigin;
+  if(key == 'd')showDistance = !showDistance;
   if(key == 'g') InitRooms();
   if(key == 'e') ExpandRooms();
-  if(key == 'p') PrintReport();
 }

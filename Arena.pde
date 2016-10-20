@@ -3,10 +3,10 @@ void ExpandRooms()
  //for(Room r : roomsList)
  for(int j = roomsList.size()-1; j > 0; j--)
  {
-  if(random(1) < ratioBigRooms)
+  if(random(1) < mapParams.ratioBigRooms && j < roomsList.size())
  {
    Room r = roomsList.get(j);
-   if(r.tSizeX == 1 && r.tSizeY == 1) ExpandRoom(r);
+   if(r.tSizeX == 1 && r.tSizeY == 1  && r != startingRoom) ExpandRoom(r);
  }
  }
 }
@@ -38,30 +38,30 @@ void ExpandRoom(Room r)
       {
        case NE:
          rTested = gridArray[r.tX-1][r.tY];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX-1][r.tY] = r;
          rTested = gridArray[r.tX][r.tY-1];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX][r.tY-1] = r;
          
          rTested = gridArray[r.tX-1][r.tY-1];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX-1][r.tY-1] = r;
          
          
          r.tSizeX = -2;
-         r.tSizeY = -2;
+        r.tSizeY = -2;
          break;
        case NW:
          rTested = gridArray[r.tX+1][r.tY];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX+1][r.tY] = r;
          rTested = gridArray[r.tX][r.tY-1];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX][r.tY-1] = r;
          
          rTested = gridArray[r.tX+1][r.tY-1];
-          if(rTested != null && rTested != r) roomsList.remove(rTested);
+          if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX+1][r.tY-1] = r;
          
          r.tSizeX = 2;
@@ -69,14 +69,14 @@ void ExpandRoom(Room r)
          break;
        case SE:
          rTested = gridArray[r.tX-1][r.tY];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX-1][r.tY] = r;
          rTested = gridArray[r.tX][r.tY+1];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX][r.tY+1] = r;
          
          rTested = gridArray[r.tX-1][r.tY+1];
-          if(rTested != null && rTested != r) roomsList.remove(rTested);
+          if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX-1][r.tY+1] = r;
          
          r.tSizeX = -2;
@@ -84,30 +84,35 @@ void ExpandRoom(Room r)
          break;
        case SW:
          rTested = gridArray[r.tX+1][r.tY];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX+1][r.tY] = r;
          rTested = gridArray[r.tX][r.tY+1];
-         if(rTested != null && rTested != r) roomsList.remove(rTested);
+         if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          gridArray[r.tX][r.tY+1] = r;
          
          rTested = gridArray[r.tX+1][r.tY+1];
-          if(rTested != null && rTested != r) roomsList.remove(rTested);
+          if(rTested != null && rTested != r && rTested != startingRoom) roomsList.remove(rTested);
          else gridArray[r.tX+1][r.tY+1] = r;
          
          r.tSizeX = 2;
          r.tSizeY = 2;
          break;
          }
+         
+         r.tX = r.aX();
+         r.tY = r.aY();
+         r.tSizeX = 2;
+         r.tSizeY = 2;
       }
     }
 
 
 boolean canExpand(Room r, int dir)
-{ //<>//
+{
   int testedX, testedY;
   Room testedRooms[] = new Room[3];
   boolean returnValue = true;
-  switch(dir) //<>//
+  switch(dir)
   {
     case NE:
       if((gridArray[r.tX-1][r.tY] != null && (gridArray[r.tX-1][r.tY].tSizeX != 1 || gridArray[r.tX-1][r.tY].tSizeY != 1)) ||

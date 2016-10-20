@@ -1,0 +1,9 @@
+{
+  "nbIterationsMax": 4,
+  "nbIterationsMin": 4,
+  "ratioBigRooms": 0.15000000596046448,
+  "nbSubIterationsMin": 4,
+  "nbMinRooms": 3,
+  "nbMaxRooms": 3,
+  "nbSubIterationsMax": 4
+}

@@ -19,7 +19,7 @@ synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:edite
 } //_CODE_:editeur:408450:
 
 public void generateButton_click(GButton source, GEvent event) { //_CODE_:generateButton:895992:
-    InitRooms();
+   if(!wantToGenerate) wantToGenerate = true;// InitRooms();
 } //_CODE_:generateButton:895992:
 
 public void mapSizeSlider_change(GSlider source, GEvent event) { //_CODE_:mapSizeSlider:557115:
@@ -35,21 +35,21 @@ public void iterationsMaxSlider_change(GSlider source, GEvent event) { //_CODE_:
   mapParams.nbIterationsMax = source.getValueI();
 } //_CODE_:iterationsMaxSlider:487152:
 
-public void minCorridors_change(GSlider source, GEvent event) { //_CODE_:slider1:397826:
+public void minCorridors_change(GSlider source, GEvent event) { //_CODE_:minCorridorsSlider:397826:
   mapParams.nbSubIterationsMin = source.getValueI();
-} //_CODE_:slider1:397826:
+} //_CODE_:minCorridorsSlider:397826:
 
-public void maxCorridors_change(GSlider source, GEvent event) { //_CODE_:slider2:285483:
+public void maxCorridors_change(GSlider source, GEvent event) { //_CODE_:maxCorridorsSlider:285483:
   mapParams.nbSubIterationsMax = source.getValueI();
-} //_CODE_:slider2:285483:
+} //_CODE_:maxCorridorsSlider:285483:
 
-public void slider3_change1(GSlider source, GEvent event) { //_CODE_:slider3:902514:
+public void slider3_change1(GSlider source, GEvent event) { //_CODE_:MinRoomsSlider:902514:
  mapParams.nbMinRooms = source.getValueI();
-} //_CODE_:slider3:902514:
+} //_CODE_:MinRoomsSlider:902514:
 
-public void slider4_change1(GSlider source, GEvent event) { //_CODE_:slider4:990699:
+public void slider4_change1(GSlider source, GEvent event) { //_CODE_:MaxRoomsSlider:990699:
   mapParams.nbMaxRooms = source.getValueI();
-} //_CODE_:slider4:990699:
+} //_CODE_:MaxRoomsSlider:990699:
 
 public void showGrid_clicked(GCheckbox source, GEvent event) { //_CODE_:checkbox1:596855:
   showGrid = !showGrid;
@@ -67,13 +67,37 @@ public void button1_click1(GButton source, GEvent event) { //_CODE_:button1:3255
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:button1:325504:
 
-public void button2_click1(GButton source, GEvent event) { //_CODE_:button2:728914:
-  ExpandRooms();
-} //_CODE_:button2:728914:
+public void ratioBigRooms_change(GSlider source, GEvent event) { //_CODE_:ratioBigRoomsslider:732983:
+  mapParams.ratioBigRooms = source.getValueF();
+} //_CODE_:ratioBigRoomsslider:732983:
 
-public void slider5_change1(GSlider source, GEvent event) { //_CODE_:slider5:924706:
-  println("slider5 - GSlider >> GEvent." + event + " @ " + millis());
-} //_CODE_:slider5:924706:
+public void LoadPresetClick(GDropList source, GEvent event) { //_CODE_:LoadPreset:362683:
+  loadPath = source.getSelectedText();
+} //_CODE_:LoadPreset:362683:
+
+public void JSONName_change1(GTextField source, GEvent event) { //_CODE_:JSONName:289505:
+  if(event == GEvent.ENTERED)
+  {
+    saveJsonPreset();
+  }
+  savePath = source.getText();
+} //_CODE_:JSONName:289505:
+
+public void button2_click1(GButton source, GEvent event) { //_CODE_:button2:476495:
+    saveJsonPreset();
+} //_CODE_:button2:476495:
+
+public void button3_click1(GButton source, GEvent event) { //_CODE_:button3:389870:
+  loadJsonPreset();
+} //_CODE_:button3:389870:
+
+public void showOrigin(GCheckbox source, GEvent event) { //_CODE_:checkbox3:306164:
+  showOrigin = !showOrigin;
+} //_CODE_:checkbox3:306164:
+
+public void checkbox4_clicked1(GCheckbox source, GEvent event) { //_CODE_:checkbox4:351398:
+  showDistance = !showDistance;
+} //_CODE_:checkbox4:351398:
 
 
 
@@ -84,42 +108,46 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  editeur = GWindow.getWindow(this, "Editeur", 0, 0, 480, 640, JAVA2D);
+  editeur = GWindow.getWindow(this, "Editeur", 0, 0, 480, 860, JAVA2D);
   editeur.noLoop();
   editeur.addDrawHandler(this, "win_draw1");
-  generateButton = new GButton(editeur, 10, 560, 110, 60);
+  generateButton = new GButton(editeur, 30, 500, 180, 60);
   generateButton.setText("Generate (C)");
   generateButton.setTextBold();
   generateButton.addEventHandler(this, "generateButton_click");
-  widthLabel = new GLabel(editeur, 0, 20, 60, 20);
+  widthLabel = new GLabel(editeur, 0, 660, 60, 20);
   widthLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   widthLabel.setText("WinSize");
+  widthLabel.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   widthLabel.setOpaque(false);
-  mapSizeSlider = new GSlider(editeur, 60, 0, 180, 60, 10.0);
+  mapSizeSlider = new GSlider(editeur, 60, 640, 180, 60, 10.0);
   mapSizeSlider.setShowValue(true);
   mapSizeSlider.setShowLimits(true);
   mapSizeSlider.setLimits(960, 640, 1920);
-  mapSizeSlider.setNbrTicks(5);
+  mapSizeSlider.setNbrTicks(9);
   mapSizeSlider.setStickToTicks(true);
   mapSizeSlider.setShowTicks(true);
   mapSizeSlider.setNumberFormat(G4P.INTEGER, 0);
+  mapSizeSlider.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   mapSizeSlider.setOpaque(false);
   mapSizeSlider.addEventHandler(this, "mapSizeSlider_change");
-  label2 = new GLabel(editeur, 0, 80, 60, 20);
+  label2 = new GLabel(editeur, 0, 720, 60, 20);
   label2.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label2.setText("TileSize");
+  label2.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   label2.setOpaque(false);
-  tileSizeSlider = new GSlider(editeur, 60, 60, 180, 60, 10.0);
+  tileSizeSlider = new GSlider(editeur, 60, 700, 180, 60, 10.0);
   tileSizeSlider.setShowValue(true);
   tileSizeSlider.setShowLimits(true);
-  tileSizeSlider.setLimits(16, 4, 32);
+  tileSizeSlider.setLimits(32, 4, 32);
   tileSizeSlider.setNbrTicks(8);
   tileSizeSlider.setStickToTicks(true);
   tileSizeSlider.setShowTicks(true);
   tileSizeSlider.setNumberFormat(G4P.INTEGER, 0);
+  tileSizeSlider.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   tileSizeSlider.setOpaque(false);
   tileSizeSlider.addEventHandler(this, "tileSizeSlider_change");
-  iterationsMaxSlider = new GSlider(editeur, 60, 190, 180, 60, 10.0);
+  iterationsMaxSlider = new GSlider(editeur, 60, 130, 180, 60, 10.0);
   iterationsMaxSlider.setShowValue(true);
   iterationsMaxSlider.setShowLimits(true);
   iterationsMaxSlider.setLimits(3, 1, 15);
@@ -129,79 +157,81 @@ public void createGUI(){
   iterationsMaxSlider.setNumberFormat(G4P.INTEGER, 0);
   iterationsMaxSlider.setOpaque(false);
   iterationsMaxSlider.addEventHandler(this, "iterationsMaxSlider_change");
-  NombreIterationsMax = new GLabel(editeur, 0, 190, 60, 60);
+  NombreIterationsMax = new GLabel(editeur, 0, 130, 60, 60);
   NombreIterationsMax.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   NombreIterationsMax.setText("Branches   Iterations    Max");
   NombreIterationsMax.setOpaque(false);
-  label1 = new GLabel(editeur, 0, 250, 60, 60);
+  label1 = new GLabel(editeur, 0, 190, 60, 60);
   label1.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label1.setText("Corridors    Iterations   Min");
   label1.setOpaque(false);
-  slider1 = new GSlider(editeur, 60, 250, 180, 60, 10.0);
-  slider1.setShowValue(true);
-  slider1.setShowLimits(true);
-  slider1.setLimits(2, 1, 15);
-  slider1.setNbrTicks(15);
-  slider1.setStickToTicks(true);
-  slider1.setShowTicks(true);
-  slider1.setNumberFormat(G4P.INTEGER, 0);
-  slider1.setOpaque(false);
-  slider1.addEventHandler(this, "minCorridors_change");
-  label3 = new GLabel(editeur, 0, 310, 60, 60);
+  minCorridorsSlider = new GSlider(editeur, 60, 190, 180, 60, 10.0);
+  minCorridorsSlider.setShowValue(true);
+  minCorridorsSlider.setShowLimits(true);
+  minCorridorsSlider.setLimits(2, 1, 15);
+  minCorridorsSlider.setNbrTicks(15);
+  minCorridorsSlider.setStickToTicks(true);
+  minCorridorsSlider.setShowTicks(true);
+  minCorridorsSlider.setNumberFormat(G4P.INTEGER, 0);
+  minCorridorsSlider.setOpaque(false);
+  minCorridorsSlider.addEventHandler(this, "minCorridors_change");
+  label3 = new GLabel(editeur, 0, 250, 60, 60);
   label3.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label3.setText("Corridors     Iterations    Max");
   label3.setOpaque(false);
-  slider2 = new GSlider(editeur, 60, 310, 180, 60, 10.0);
-  slider2.setShowValue(true);
-  slider2.setShowLimits(true);
-  slider2.setLimits(5, 1, 15);
-  slider2.setNbrTicks(15);
-  slider2.setStickToTicks(true);
-  slider2.setShowTicks(true);
-  slider2.setNumberFormat(G4P.INTEGER, 0);
-  slider2.setOpaque(false);
-  slider2.addEventHandler(this, "maxCorridors_change");
-  label4 = new GLabel(editeur, 0, 370, 60, 60);
+  maxCorridorsSlider = new GSlider(editeur, 60, 250, 180, 60, 10.0);
+  maxCorridorsSlider.setShowValue(true);
+  maxCorridorsSlider.setShowLimits(true);
+  maxCorridorsSlider.setLimits(5, 1, 15);
+  maxCorridorsSlider.setNbrTicks(15);
+  maxCorridorsSlider.setStickToTicks(true);
+  maxCorridorsSlider.setShowTicks(true);
+  maxCorridorsSlider.setNumberFormat(G4P.INTEGER, 0);
+  maxCorridorsSlider.setOpaque(false);
+  maxCorridorsSlider.addEventHandler(this, "maxCorridors_change");
+  label4 = new GLabel(editeur, 0, 310, 60, 60);
   label4.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label4.setText("Segments   Min   Rooms");
   label4.setOpaque(false);
-  label5 = new GLabel(editeur, 0, 430, 60, 60);
+  label5 = new GLabel(editeur, 0, 370, 60, 60);
   label5.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label5.setText("Segments   Max    Rooms");
   label5.setOpaque(false);
-  slider3 = new GSlider(editeur, 60, 370, 180, 60, 10.0);
-  slider3.setShowValue(true);
-  slider3.setShowLimits(true);
-  slider3.setLimits(2, 1, 10);
-  slider3.setNbrTicks(10);
-  slider3.setStickToTicks(true);
-  slider3.setShowTicks(true);
-  slider3.setNumberFormat(G4P.INTEGER, 0);
-  slider3.setOpaque(false);
-  slider3.addEventHandler(this, "slider3_change1");
-  slider4 = new GSlider(editeur, 60, 430, 180, 60, 10.0);
-  slider4.setShowValue(true);
-  slider4.setShowLimits(true);
-  slider4.setLimits(5, 1, 10);
-  slider4.setNbrTicks(10);
-  slider4.setStickToTicks(true);
-  slider4.setShowTicks(true);
-  slider4.setNumberFormat(G4P.INTEGER, 0);
-  slider4.setOpaque(false);
-  slider4.addEventHandler(this, "slider4_change1");
-  checkbox1 = new GCheckbox(editeur, 10, 500, 120, 20);
+  MinRoomsSlider = new GSlider(editeur, 60, 310, 180, 60, 10.0);
+  MinRoomsSlider.setShowValue(true);
+  MinRoomsSlider.setShowLimits(true);
+  MinRoomsSlider.setLimits(2, 1, 10);
+  MinRoomsSlider.setNbrTicks(10);
+  MinRoomsSlider.setStickToTicks(true);
+  MinRoomsSlider.setShowTicks(true);
+  MinRoomsSlider.setNumberFormat(G4P.INTEGER, 0);
+  MinRoomsSlider.setOpaque(false);
+  MinRoomsSlider.addEventHandler(this, "slider3_change1");
+  MaxRoomsSlider = new GSlider(editeur, 60, 370, 180, 60, 10.0);
+  MaxRoomsSlider.setShowValue(true);
+  MaxRoomsSlider.setShowLimits(true);
+  MaxRoomsSlider.setLimits(5, 1, 10);
+  MaxRoomsSlider.setNbrTicks(10);
+  MaxRoomsSlider.setStickToTicks(true);
+  MaxRoomsSlider.setShowTicks(true);
+  MaxRoomsSlider.setNumberFormat(G4P.INTEGER, 0);
+  MaxRoomsSlider.setOpaque(false);
+  MaxRoomsSlider.addEventHandler(this, "slider4_change1");
+  checkbox1 = new GCheckbox(editeur, 10, 770, 110, 30);
   checkbox1.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   checkbox1.setText("Show Grid (G)");
+  checkbox1.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   checkbox1.setOpaque(false);
   checkbox1.addEventHandler(this, "showGrid_clicked");
   checkbox1.setSelected(true);
-  checkbox2 = new GCheckbox(editeur, 10, 530, 120, 20);
+  checkbox2 = new GCheckbox(editeur, 130, 770, 110, 30);
   checkbox2.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   checkbox2.setText("Show Infos (I)");
+  checkbox2.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   checkbox2.setOpaque(false);
   checkbox2.addEventHandler(this, "checkbox2_clicked1");
   checkbox2.setSelected(true);
-  iterationsMinSlider = new GSlider(editeur, 60, 130, 180, 60, 10.0);
+  iterationsMinSlider = new GSlider(editeur, 60, 70, 180, 60, 10.0);
   iterationsMinSlider.setShowValue(true);
   iterationsMinSlider.setShowLimits(true);
   iterationsMinSlider.setLimits(3, 1, 15);
@@ -211,27 +241,71 @@ public void createGUI(){
   iterationsMinSlider.setNumberFormat(G4P.INTEGER, 0);
   iterationsMinSlider.setOpaque(false);
   iterationsMinSlider.addEventHandler(this, "IterationsMinSlider_change");
-  BrancheIterationMin = new GLabel(editeur, 0, 130, 60, 60);
+  BrancheIterationMin = new GLabel(editeur, 0, 70, 60, 60);
   BrancheIterationMin.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   BrancheIterationMin.setText("Branches    Iterations   Min");
   BrancheIterationMin.setOpaque(false);
-  button1 = new GButton(editeur, 260, 560, 200, 60);
+  button1 = new GButton(editeur, 290, 490, 220, 60);
   button1.setText("Populate (P)");
   button1.setLocalColorScheme(GCScheme.RED_SCHEME);
   button1.addEventHandler(this, "button1_click1");
-  button2 = new GButton(editeur, 130, 560, 110, 60);
-  button2.setText("Expand (E)");
+  ratioBigRoomsslider = new GSlider(editeur, 60, 430, 180, 60, 10.0);
+  ratioBigRoomsslider.setShowValue(true);
+  ratioBigRoomsslider.setShowLimits(true);
+  ratioBigRoomsslider.setLimits(0.5, 0.0, 1.0);
+  ratioBigRoomsslider.setNbrTicks(21);
+  ratioBigRoomsslider.setStickToTicks(true);
+  ratioBigRoomsslider.setShowTicks(true);
+  ratioBigRoomsslider.setNumberFormat(G4P.DECIMAL, 2);
+  ratioBigRoomsslider.setOpaque(false);
+  ratioBigRoomsslider.addEventHandler(this, "ratioBigRooms_change");
+  label6 = new GLabel(editeur, 0, 430, 60, 60);
+  label6.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label6.setText("Ratio        Big Rooms");
+  label6.setOpaque(false);
+  LoadPreset = new GDropList(editeur, 250, 720, 130, 80, 3);
+  LoadPreset.setItems(loadStrings("list_362683"), 0);
+  LoadPreset.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  LoadPreset.addEventHandler(this, "LoadPresetClick");
+  JSONName = new GTextField(editeur, 250, 660, 130, 20, G4P.SCROLLBARS_NONE);
+  JSONName.setPromptText("Enter preset name here");
+  JSONName.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  JSONName.setOpaque(true);
+  JSONName.addEventHandler(this, "JSONName_change1");
+  button2 = new GButton(editeur, 390, 650, 80, 40);
+  button2.setText("Save Preset");
+  button2.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   button2.addEventHandler(this, "button2_click1");
-  slider5 = new GSlider(editeur, 140, 500, 100, 50, 10.0);
-  slider5.setShowValue(true);
-  slider5.setShowLimits(true);
-  slider5.setLimits(0.0, 0.0, 1.0);
-  slider5.setNbrTicks(9);
-  slider5.setStickToTicks(true);
-  slider5.setShowTicks(true);
-  slider5.setNumberFormat(G4P.DECIMAL, 2);
-  slider5.setOpaque(false);
-  slider5.addEventHandler(this, "slider5_change1");
+  button3 = new GButton(editeur, 390, 710, 80, 40);
+  button3.setText("Load Preset");
+  button3.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  button3.addEventHandler(this, "button3_click1");
+  label7 = new GLabel(editeur, 10, 10, 150, 40);
+  label7.setIcon("rooms.png", 1, GAlign.WEST, GAlign.CENTER, GAlign.MIDDLE);
+  label7.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label7.setText("LEVEL GENERATION");
+  label7.setTextBold();
+  label7.setOpaque(false);
+  label8 = new GLabel(editeur, 170, 590, 150, 40);
+  label8.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  label8.setText("EDITOR SETTINGS");
+  label8.setTextBold();
+  label8.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  label8.setOpaque(false);
+  checkbox3 = new GCheckbox(editeur, 10, 810, 110, 30);
+  checkbox3.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  checkbox3.setText("Show Origin (O)");
+  checkbox3.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  checkbox3.setOpaque(false);
+  checkbox3.addEventHandler(this, "showOrigin");
+  checkbox3.setSelected(true);
+  checkbox4 = new GCheckbox(editeur, 130, 810, 120, 30);
+  checkbox4.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  checkbox4.setText("Show Distance (D)");
+  checkbox4.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  checkbox4.setOpaque(false);
+  checkbox4.addEventHandler(this, "checkbox4_clicked1");
+  checkbox4.setSelected(true);
   editeur.loop();
 }
 
@@ -246,17 +320,25 @@ GSlider tileSizeSlider;
 GSlider iterationsMaxSlider; 
 GLabel NombreIterationsMax; 
 GLabel label1; 
-GSlider slider1; 
+GSlider minCorridorsSlider; 
 GLabel label3; 
-GSlider slider2; 
+GSlider maxCorridorsSlider; 
 GLabel label4; 
 GLabel label5; 
-GSlider slider3; 
-GSlider slider4; 
+GSlider MinRoomsSlider; 
+GSlider MaxRoomsSlider; 
 GCheckbox checkbox1; 
 GCheckbox checkbox2; 
 GSlider iterationsMinSlider; 
 GLabel BrancheIterationMin; 
 GButton button1; 
+GSlider ratioBigRoomsslider; 
+GLabel label6; 
+GDropList LoadPreset; 
+GTextField JSONName; 
 GButton button2; 
-GSlider slider5; 
+GButton button3; 
+GLabel label7; 
+GLabel label8; 
+GCheckbox checkbox3; 
+GCheckbox checkbox4; 
